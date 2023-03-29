@@ -1,0 +1,98 @@
+## Workflow to assemble bacterial genomes from Oxford Nanopore raw reads alone and in hybrid assembly
+## in combination with Miseq reads
+##
+
+#--- Help rules ---#
+
+## help: Print all the documentation in this Snakefile
+rule help:
+    input:
+        "snakefile"
+    shell:
+        "sed -n 's/^##//p' {input}"
+
+#--- Workflow rules ---#
+
+## basecall: Perform the basecalling on output fast5 files from ONT
+#rule basecall:
+#	input:
+#		"config.txt"
+#	output:
+#		"ont/01_basecalling/"
+#	bash:
+#	  "sbatch ont/scripts/01_basecalling.sbatch {input} {output}"
+
+## demultiplex: Demultiplex the reads according to barcodes
+#rule demultiplex:
+#	input:
+#		"ont/01_basecalling/"
+#	output:
+#		"ont/02_demultiplexing/"
+#	bash:
+#		"sbatch ont/scripts/02_demultiplexing.sbatch {input} {output}"
+
+## concatenate: Concatanate the reads with the same barcode
+#rule concatenate:
+#	input:
+#		"02_demultiplexing/"
+#	output:
+#		"03_concatenate"
+#	bash:
+#		"sbatch scripts/03_concatenate.sbatch {input} {output}"
+
+## nanoplot:
+#rule nanoplot:
+#	input:
+#		""
+#	output:
+#		""
+#	bash:
+#		""
+
+## nanoQC: Chech read quality using nanoQC
+#rule nanoQC:
+
+## chopper:
+#rule chopper:
+
+## nanoplot:
+#rule nanoplot:
+
+## nanoQC:
+#rule nanoQC:
+
+## canu: Assemble long reads with canu
+#rule canu:
+#	input:
+#		"06_chopper/"
+#	output:
+#		"09_canu/"
+#	bash:
+#		"sbatch scripts/09_canu.sbatch {input} {output}"
+
+## flye: Assemble long reads with flye
+#rule flye:
+#	input:
+#		"06_chopper/"
+#	output:
+#		"10_flye/"
+#	bash:
+#		"sbatch scripts/10_flye.sbatch {input} {output}"
+
+## bwa: Align long reads de novo using bwa
+#rule bwa:
+#	input:
+#		""
+#	output:
+#		"11_bwa/"
+#	bash:
+#		"sbatch scripts/11_bwa.sbatch {input} {output}"
+
+## polypolish: Polish long read assemlby using Miseq reads
+#rule polypolish:
+#	input:
+#		"11_bwa/"
+#	output:
+#		"12_polypolish/"
+#	bash:
+#		"sbatch scripts/12_polypolish.sbatch {input} {output}"

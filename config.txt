@@ -1,0 +1,5 @@
+# Absolute path to raw Miseq reads:
+<PATH_TO_RAW_MISEQ_READS>
+
+# Absolute path to raw fast5 from Oxford Nanopore:
+<PATH_TO_RAW_FAST5_FILES>

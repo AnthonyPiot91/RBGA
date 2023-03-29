@@ -1,0 +1,3 @@
+Strain01	Run01	barcode01
+Strain02	Run02	barcode02
+Strain03	Run03	barcode03

@@ -1,0 +1,50 @@
+## Workflow to assemble bacterial genomes from Oxford Nanopore raw reads alone and in hybrid assembly
+## in combination with Miseq reads
+##
+
+#--- Help rules ---#
+
+## help: Print all the documentation in this Snakefile
+rule help:
+    input:
+        "snakefile"
+    shell:
+        "sed -n 's/^##//p' {input}"
+
+#--- Workflow rules ---#
+
+## fastqc_raw: Chech raw read quality using FastQC
+#rule fastqc_raw:
+#	input:
+#		"config.txt"
+#	output:
+#		"miseq/01_fastQC/"
+#	bash:
+#		"sbatch miseq/scripts/01_fastQC.sbatch {input} {output}"
+
+## trimmomatic: Trim and filter raw reads using Trimmomatic
+#rule trimmomatic:
+#       input:
+#               "miseq/01_fastQC"
+#       output:
+#               "miseq/02_trimmomatic/"
+#       bash:
+#               "sbatch miseq/scripts/02_trimmomatic.sbatch {input} {output}"
+
+## fastqc_clean: Chech cleaned read quality using FastQC
+#rule fastqc_clean:
+#       input:
+#               "miseq/02_trimmomatic/"
+#       output:
+#               "miseq/03_fastQC/"
+#       bash:
+#               "sbatch miseq/scripts/03_fastQC.sbatch {input} {output}"
+
+## A5-miseq: Use the A5-miseq workflow to trim, clean and align raw Miseq reads de novo
+#rule A5-miseq:
+#       input:
+#               "config.txt"
+#       output:
+#               "miseq/04_A5-miseq/"
+#       bash:
+#               "sbatch miseq/scripts/04_A5-miseq.sbatch {input} {output}"
