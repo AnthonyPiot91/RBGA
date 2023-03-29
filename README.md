@@ -17,8 +17,10 @@ git clone https://github.com/AnthonyPiot91/RBGA
 ## Create a conda environment for the workflow and install the required softwares via conda:
 Some packages are installed in the same environment to simplify the loading of conda environements 
 within sbatch scripts.
+
 Others such as chopper, canu and flye need to be installed in separate environments because of 
 dependency conflicts. 
+
 Note that creation of the canu environment may take a long time.
 
 ```
@@ -30,6 +32,9 @@ conda create -n flye -c bioconda -c conda-forge flye=2.9.2
 ```
 
 ## Install guppy
+Guppy is not available via conda and must be installed by other means. Use the latest version 
+available.
+
 ```
 
 ```
