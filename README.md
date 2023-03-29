@@ -14,7 +14,7 @@ Nanopore long reads and polishing with Illumina Miseq short reads
 git clone https://github.com/AnthonyPiot91/RBGA
 ```
 
-## Create a conda environment for the workflow and install the required softwares via conda:
+## Install the required softwares via conda:
 Some packages are installed in the same environment to simplify the loading of conda environements 
 within sbatch scripts.
 
