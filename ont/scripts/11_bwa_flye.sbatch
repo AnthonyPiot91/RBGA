@@ -10,7 +10,7 @@
 
 # load conda environment
 source $CONDA_PREFIX/etc/profile.d/conda.sh
-conda activate HBAW_1
+conda activate RBGA_1
 
 # define paramaters
 THREADS=8

@@ -15,7 +15,7 @@ BARCODE_KIT="SQK-PBK004"
 
 # Load conda environment
 source $CONDA_PREFIX/etc/profile.d/conda.sh
-conda activate HBAW_1
+conda activate RBGA_1
 
 INPUT_DIR="01_basecalling/pass"
 OUTPUT_DIR="02_demultiplexing"

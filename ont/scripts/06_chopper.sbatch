@@ -10,7 +10,7 @@
 
 # Load conda environment
 source $CONDA_PREFIX/etc/profile.d/conda.sh
-conda activate HBAW_2
+conda activate chopper
 
 # Define parameters
 # For canu, MIN_QUAL and MIN_LEN can be kept at zero because this assembler will

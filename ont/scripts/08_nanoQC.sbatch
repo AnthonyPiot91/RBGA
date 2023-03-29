@@ -10,7 +10,7 @@
 
 # Load conda environment
 source $CONDA_PREFIX/etc/profile.d/conda.sh
-conda activate HBAW_1
+conda activate RBGA_1
 
 # Define paramaters
 INPUT_DIR="06_chopper"
