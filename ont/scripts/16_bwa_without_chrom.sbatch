@@ -8,17 +8,17 @@
 #SBATCH --mem=10G
 #SBATCH --array=1-6
 
-# load conda environment
+# Load conda environment
 source $CONDA_PREFIX/etc/profile.d/conda.sh
 conda activate RBGA_1
 
-# define paramaters
-THREADS=8
-INPUT_DIR="10_flye"
-OUTPUT_DIR="11_bwa"
+# Define paramaters
+THREADS=10
+INPUT_DIR="09_canu"
+OUTPUT_DIR="11_bwa/canu"
 SMALL_READ_PATH="../miseq/02_trimmomatic"
 
-# Capture strain and barcode names
+# Capture strain an barcode name
 STRAIN=$(sed -n "$SLURM_ARRAY_TASK_ID"p ../barcode_correspondence.txt | cut -f1)
 echo $STRAIN
 BARCODE=$(sed -n "$SLURM_ARRAY_TASK_ID"p ../barcode_correspondence.txt | cut -f3)

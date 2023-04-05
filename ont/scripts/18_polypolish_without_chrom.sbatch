@@ -13,9 +13,9 @@ source $CONDA_PREFIX/etc/profile.d/conda.sh
 conda activate RBGA_1
 
 # Define paramaters
-INPUT_DIR1="10_flye"
-INPUT_DIR2="11_bwa/flye"
-OUTPUT_DIR="12_polypolish/flye"
+INPUT_DIR1="09_canu"
+INPUT_DIR2="11_bwa/canu"
+OUTPUT_DIR="12_polypolish/canu"
 
 # Capture info on input files
 STRAIN=$(sed -n "$SLURM_ARRAY_TASK_ID"p ../barcode_correspondence.txt | cut -f1)

@@ -16,7 +16,7 @@ conda activate canu
 THREADS=16
 GENOME_SIZE="1.5m"
 INPUT_DIR="06_chopper"
-OUTPUT_DIR="09_canu"
+OUTPUT_DIR="09_canu/all"
 
 # Capture fastq file name
 STRAIN=$(sed -n "$SLURM_ARRAY_TASK_ID"p ../barcode_correspondence.txt | cut -f1)
