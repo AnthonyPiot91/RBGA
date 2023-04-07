@@ -13,9 +13,9 @@ source $CONDA_PREFIX/etc/profile.d/conda.sh
 conda activate quickmerge
 
 # define paramaters
-INPUT_DIR1="14_polypolish/canu/clean_long_reads"
-INPUT_DIR2="14_polypolish/canu/plasmids"
-OUTPUT_DIR="quickmerge/canu"
+INPUT_DIR1="12_polypolish/with_chrom"
+INPUT_DIR2="12_polypolish/without_chrom"
+OUTPUT_DIR="quickmerge/polypolish_canu"
 
 # capture info on input files
 STRAIN=$(sed -n "$SLURM_ARRAY_TASK_ID"p ../barcode_correspondence.txt | cut -f1)

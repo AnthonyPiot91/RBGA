@@ -14,8 +14,9 @@ conda activate chopper
 
 # Define parameters
 # For canu, MIN_QUAL and MIN_LEN can be kept at zero because this assembler will
-# only use the longest reads and correct them.
-# HEADCROP and TAILCROP must be set according the the 05_nanoQC results.
+# use in priority the longest reads as well as additional smaller reads to represent
+# the whole genome if needed. Reads will then be corrected by canu.
+# HEADCROP and TAILCROP should be set according the the 05_nanoQC results.
 THREADS=8
 MIN_QUAL=0
 MIN_LEN=0

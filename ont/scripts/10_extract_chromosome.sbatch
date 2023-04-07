@@ -12,16 +12,14 @@
 source /mnt/ibis/rclevesq/software/miniconda3/anpio1/etc/profile.d/conda.sh
 
 # Define paramaters
-INPUT_DIR="canu"
-OUTPUT_DIR="minimap2"
+INPUT_DIR="09_canu/with_chrom"
+OUTPUT_DIR="10_minimap2/chromosome"
 
 # Capture fastq file name
 STRAIN=$(sed -n "$SLURM_ARRAY_TASK_ID"p ../barcode_correspondence.txt | cut -f1)
 echo $STRAIN
-CHROM_REF="$OUTPUT_DIR/"$STRAIN"_chromosome.fasta"
-echo $CHROM_REF
 
 # Run python script
 python  scripts/sub_scripts/extract_longest_fasta_sequence.py \
-	canu/clean/$STRAIN/$STRAIN.contigs.fasta \
-	minimap2/"$STRAIN"_chromosome.fasta
+	$INPUT_DIR/$STRAIN/$STRAIN.contigs.fasta \
+	$OUTPUT_DIR/"$STRAIN"_chromosome.fasta

@@ -15,13 +15,13 @@ conda activate minimap2
 # Define paramaters
 THREADS=12
 INPUT_DIR_FASTQ="06_chopper"
-OUTPUT_DIR="10_minimap2/with_chrom"
-REF_DIR="09_canu/with_chrom"
+OUTPUT_DIR="10_minimap2/quickmerge_canu"
+REF_DIR="13_quickmerge/canu"
 
 # Capture fastq file name
 STRAIN=$(sed -n "$SLURM_ARRAY_TASK_ID"p ../barcode_correspondence.txt | cut -f1)
 echo $STRAIN
-REF="$REF_DIR/$STRAIN/"$STRAIN".contigs.fasta"
+REF="$REF_DIR/merged_"$STRAIN".fasta"
 echo $REF
 
 minimap2 --version
@@ -31,4 +31,4 @@ minimap2 -a \
 	 -x map-ont \
 	 $REF \
 	 $INPUT_DIR_FASTQ/$STRAIN*.fastq \
-	 -o $OUTPUT_DIR/"$STRAIN"_all_contigs.sam
+	 -o $OUTPUT_DIR/"$STRAIN"_quickmerge_canu.sam

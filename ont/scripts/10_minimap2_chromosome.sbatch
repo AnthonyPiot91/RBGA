@@ -14,13 +14,14 @@ conda activate minimap2
 
 # Define paramaters
 THREADS=12
-INPUT_DIR_FASTQ="minimap2/chromosome"
-OUTPUT_DIR="minimap2/contigs_wo_chrom"
+INPUT_DIR_FASTQ="06_chopper"
+OUTPUT_DIR="10_minimap2/chromosome"
+REF_DIR="10_minimap2/chromosome"
 
 # Capture fastq file name
 STRAIN=$(sed -n "$SLURM_ARRAY_TASK_ID"p ../barcode_correspondence.txt | cut -f1)
 echo $STRAIN
-REF="canu_plasmids/$STRAIN/$STRAIN.contigs.fasta"
+REF="$REF_DIR/"$STRAIN"_chromosome.fasta"
 echo $REF
 
 minimap2 --version
@@ -29,8 +30,8 @@ minimap2 --version
 minimap2 -a \
 	 -x map-ont \
 	 $REF \
-	 $INPUT_DIR_FASTQ/"$STRAIN"_chromosome_unmapped.fastq \
-	 -o $OUTPUT_DIR/"$STRAIN"_contigs_wo_chrom.sam
+	 $INPUT_DIR_FASTQ/$STRAIN*.fastq \
+	 -o $OUTPUT_DIR/"$STRAIN"_chromosome.sam
 
 # Deactivate minimap2 environment to use samtools
 conda deactivate
@@ -39,9 +40,9 @@ samtools --version | sed -n '1,3p'
 
 # Extract unmapped reads with samtools
 samtools view -bf 4 \
-		$OUTPUT_DIR/"$STRAIN"_contigs_wo_chrom.sam \
-		> $OUTPUT_DIR/"$STRAIN"_contigs_wo_chrom_unmapped.bam
+		$OUTPUT_DIR/"$STRAIN"_chromosome.sam \
+		> $OUTPUT_DIR/"$STRAIN"_chromosome_unmapped.bam
 
 # Convert bam file to fastq
-samtools fastq $OUTPUT_DIR/"$STRAIN"_contigs_wo_chrom_unmapped.bam \
-	     > $OUTPUT_DIR/"$STRAIN"_contigs_wo_chrom_unmapped.fastq
+samtools fastq $OUTPUT_DIR/"$STRAIN"_chromosome_unmapped.bam \
+	     > $OUTPUT_DIR/"$STRAIN"_chromosome_unmapped.fastq

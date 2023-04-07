@@ -15,8 +15,8 @@ conda activate canu
 # Define parameters
 THREADS=16
 GENOME_SIZE="1.5m"
-INPUT_DIR="10_minimap2"
-OUTPUT_DIR="09_canu/plasmids"
+INPUT_DIR="10_minimap2/chromosome"
+OUTPUT_DIR="09_canu/without_chrom"
 
 # Capture fastq file name
 STRAIN=$(sed -n "$SLURM_ARRAY_TASK_ID"p ../barcode_correspondence.txt | cut -f1)

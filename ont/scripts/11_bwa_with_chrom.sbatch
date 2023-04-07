@@ -14,8 +14,8 @@ conda activate RBGA_1
 
 # Define paramaters
 THREADS=10
-INPUT_DIR="09_canu"
-OUTPUT_DIR="11_bwa/canu"
+INPUT_DIR="09_canu/with_chrom"
+OUTPUT_DIR="11_bwa/with_chrom"
 SMALL_READ_PATH="../miseq/02_trimmomatic"
 
 # Capture strain an barcode name
