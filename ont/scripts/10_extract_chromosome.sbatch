@@ -20,6 +20,6 @@ STRAIN=$(sed -n "$SLURM_ARRAY_TASK_ID"p ../barcode_correspondence.txt | cut -f1)
 echo $STRAIN
 
 # Run python script
-python  scripts/sub_scripts/extract_longest_fasta_sequence.py \
+python  scripts/sub_scripts/10_extract_longest_fasta_sequence.py \
 	$INPUT_DIR/$STRAIN/$STRAIN.contigs.fasta \
 	$OUTPUT_DIR/"$STRAIN"_chromosome.fasta

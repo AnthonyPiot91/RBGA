@@ -38,3 +38,6 @@ polypolish --debug $OUTPUT_DIR/"$STRAIN"_polished.tsv \
 	   $OUTPUT_DIR/"$STRAIN"_filtered_1.sam \
 	   $OUTPUT_DIR/"$STRAIN"_filtered_2.sam \
 	   > $OUTPUT_DIR/"$STRAIN"_polished.fasta
+
+# Rename sequence names to avoid duplicated names during quickmerge
+sed -i '/>/ s/$/_without_chrom/' $OUTPUT_DIR/"$STRAIN"_polished.fasta
