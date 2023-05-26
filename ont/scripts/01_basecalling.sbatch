@@ -11,10 +11,10 @@
 
 # Define parameters
 # Change the barcode kit according to the one used for sequencing
-FLOWCELL="FLO-MIN106"
+FLOWCELL="" #ex: FLO-MIN106
 echo $FLOWCELL
-BARCODE_KIT="SQK-PBK004"
-echo $BARCODE_KIT
+LIGATION_KIT=""		#ex: SQK-PBK004
+echo $LIGATION_KIT
 FAST5_PATH=$(sed -n 5p ../config.txt)
 echo $FAST5_PATH
 OUTPUT_DIR="01_basecalling"
@@ -25,6 +25,6 @@ OUTPUT_DIR="01_basecalling"
 	-i $FAST5_PATH \
 	-s $OUTPUT_DIR \
 	--flowcell $FLOWCELL \
-	--kit "$BARCODE_KIT" \
+	--kit "$LIGATION_KIT" \
 	-x cuda:0 \
 	--gpu_runners_per_device 16

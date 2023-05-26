@@ -6,8 +6,6 @@
 #SBATCH --time=00-01:00
 #SBATCH --mem=4G
 
-# Must run on ibis partitions because of cuda library compatibility
-
 # Load conda environment
 source $CONDA_PREFIX/etc/profile.d/conda.sh
 conda activate RBGA_1
@@ -15,7 +13,7 @@ conda activate RBGA_1
 # Define parameters
 # Change the barcode kit according to the one used during sequencing
 THREADS=16
-BARCODE_KIT="SQK-PBK004"
+BARCODE_KIT=""		#ex: SQK-PBK004
 INPUT_DIR="01_basecalling/pass"
 OUTPUT_DIR="02_demultiplexing"
 
