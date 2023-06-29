@@ -13,7 +13,7 @@ conda activate RBGA_1
 # Define parameters
 # Change the barcode kit according to the one used during sequencing
 THREADS=16
-BARCODE_KIT=""		#ex: SQK-PBK004
+BARCODE_KIT="EXP-NBD104 EXP-NBD114"
 INPUT_DIR="01_basecalling/pass"
 OUTPUT_DIR="02_demultiplexing"
 
@@ -22,4 +22,12 @@ OUTPUT_DIR="02_demultiplexing"
 	-t $THREADS \
 	-i $INPUT_DIR \
 	-s $OUTPUT_DIR \
-	--barcode_kits "$BARCODE_KIT"
+	--barcode_kits "$BARCODE_KIT" \
+	--detect_adapter \
+        --detect_barcodes \
+        --detect_mid_strand_adapter \
+        --detect_mid_strand_barcodes \
+        --detect_primer \
+        --enable_trim_barcodes \
+        --trim_adapters \
+        --trim_primers

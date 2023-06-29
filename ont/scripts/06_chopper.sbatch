@@ -6,7 +6,7 @@
 #SBATCH --mail-type=NONE
 #SBATCH --time=00-00:30
 #SBATCH --mem=1G
-#SBATCH --array=1-6
+#SBATCH --array=2-5
 
 # Load conda environment
 source $CONDA_PREFIX/etc/profile.d/conda.sh
@@ -18,8 +18,8 @@ conda activate chopper
 # the whole genome if needed. Reads will then be corrected by canu.
 # HEADCROP and TAILCROP should be set according the the 05_nanoQC results.
 THREADS=8
-MIN_QUAL=0
-MIN_LEN=0
+MIN_QUAL=10
+MIN_LEN=2000
 HEADCROP=25
 TAILCROP=25
 INPUT_DIR="03_concatenate"
@@ -38,4 +38,4 @@ chopper -t $THREADS \
 	-l $MIN_LEN \
 	--headcrop $HEADCROP \
 	--tailcrop $TAILCROP \
-> $OUTPUT_DIR/"$STRAIN"_trimmed.fastq
+> $OUTPUT_DIR/"$STRAIN"_trimmed_"$MIN_LEN"_"$MIN_QUAL".fastq

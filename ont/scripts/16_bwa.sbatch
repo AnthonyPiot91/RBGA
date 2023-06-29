@@ -6,7 +6,7 @@
 #SBATCH --mail-type=NONE
 #SBATCH --time=0-00:30
 #SBATCH --mem=10G
-#SBATCH --array=1-6
+#SBATCH --array=4
 
 # Load conda environment
 source $CONDA_PREFIX/etc/profile.d/conda.sh
@@ -14,9 +14,9 @@ conda activate RBGA_1
 
 # Define paramaters
 THREADS=10
-INPUT_DIR="09_canu/with_chrom"
-OUTPUT_DIR="11_bwa/with_chrom"
+OUTPUT_DIR="16_bwa"
 SMALL_READ_PATH="../miseq/02_trimmomatic"
+REPLICONS="18_replicons"
 
 # Capture strain an barcode name
 STRAIN=$(sed -n "$SLURM_ARRAY_TASK_ID"p ../barcode_correspondence.txt | cut -f1)
@@ -25,7 +25,7 @@ BARCODE=$(sed -n "$SLURM_ARRAY_TASK_ID"p ../barcode_correspondence.txt | cut -f3
 echo $BARCODE
 
 # Capture long read fasta assembly file name
-LONG_READS="$INPUT_DIR/$STRAIN/assembly.fasta"
+LONG_READS="09_flye/$STRAIN/verified/$REPLICONS/"$REPLICONS".fasta"
 echo $LONG_READS
 
 # Capture small read fastq name

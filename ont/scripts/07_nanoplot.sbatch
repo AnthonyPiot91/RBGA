@@ -6,7 +6,7 @@
 #SBATCH --mail-type=NONE
 #SBATCH --time=00-01:00
 #SBATCH --mem=5G
-#SBATCH --array=1-5
+#SBATCH --array=2
 
 # Load conda environment
 source $CONDA_PREFIX/etc/profile.d/conda.sh
@@ -23,6 +23,6 @@ echo $STRAIN
 
 # Run NanoPlot
 NanoPlot -t $THREADS \
-	 --fastq $INPUT_DIR/"$STRAIN"*.fastq \
-	 -o $OUTPUT_DIR/$STRAIN
+	 --fastq $INPUT_DIR/"$STRAIN"_trimmed_2000_10.fastq \
+	 -o $OUTPUT_DIR/$STRAIN/2000_10/
 

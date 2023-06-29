@@ -6,7 +6,7 @@
 #SBATCH --mail-type=NONE
 #SBATCH --time=00-01:00
 #SBATCH --mem=5G
-#SBATCH --array=1-6
+#SBATCH --array=1-5
 
 # Load conda environment
 source $CONDA_PREFIX/etc/profile.d/conda.sh

@@ -4,37 +4,42 @@
 #SBATCH -c 5
 #SBATCH -p batch
 #SBATCH --mail-type=NONE
-#SBATCH --time=0-01:00
+#SBATCH --time=0-00:30
 #SBATCH --mem=5G
-#SBATCH --array=1-6
+#SBATCH --array=4
 
 # Load conda environment
 source $CONDA_PREFIX/etc/profile.d/conda.sh
 conda activate RBGA_1
 
 # Define paramaters
-INPUT_DIR1="09_canu/with_chrom"
-INPUT_DIR2="11_bwa/with_chrom"
-OUTPUT_DIR="12_polypolish/with_chrom"
+INPUT_DIR1="09_flye"
+INPUT_DIR2="16_bwa"
+OUTPUT_DIR="17_polypolish"
+REPLICONS="18_replicons"
 
 # Capture info on input files
 STRAIN=$(sed -n "$SLURM_ARRAY_TASK_ID"p ../barcode_correspondence.txt | cut -f1)
 echo $STRAIN
 BARCODE=$(sed -n "$SLURM_ARRAY_TASK_ID"p ../barcode_correspondence.txt | cut -f3)
 echo $BARCODE
-LONG_READS="$INPUT_DIR1/$STRAIN/assembly.fasta"
+LONG_READS="$INPUT_DIR1/$STRAIN/verified/$REPLICONS/"$REPLICONS".fasta"
 echo $LONG_READS
+
+mkdir -p $OUTPUT_DIR/$STRAIN/
 
 # Filter the alignments
 polypolish_insert_filter.py \
 	--in1 $INPUT_DIR2/"$STRAIN"_alignments_1.sam \
 	--in2 $INPUT_DIR2/"$STRAIN"_alignments_2.sam \
-	--out1 $OUTPUT_DIR/"$STRAIN"_filtered_1.sam \
-	--out2 $OUTPUT_DIR/"$STRAIN"_filtered_2.sam
+	--out1 $OUTPUT_DIR/$STRAIN/"$STRAIN"_filtered_1.sam \
+	--out2 $OUTPUT_DIR/$STRAIN/"$STRAIN"_filtered_2.sam
 
 # Run polypolish
-polypolish --debug $OUTPUT_DIR/"$STRAIN"_polished.tsv \
+polypolish --debug $OUTPUT_DIR/$STRAIN/"$STRAIN"_polished.tsv \
 	   $LONG_READS \
-	   $OUTPUT_DIR/"$STRAIN"_filtered_1.sam \
-	   $OUTPUT_DIR/"$STRAIN"_filtered_2.sam \
-	   > $OUTPUT_DIR/"$STRAIN"_polished.fasta
+	   $OUTPUT_DIR/$STRAIN/"$STRAIN"_filtered_1.sam \
+	   $OUTPUT_DIR/$STRAIN/"$STRAIN"_filtered_2.sam \
+	   > $OUTPUT_DIR/$STRAIN/"$STRAIN"_polished.fasta
+
+echo $REPLICONS > 19_statistics/$STRAIN
