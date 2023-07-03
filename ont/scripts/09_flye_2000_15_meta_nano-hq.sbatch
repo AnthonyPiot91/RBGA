@@ -6,7 +6,7 @@
 #SBATCH --mail-type=NONE
 #SBATCH --time=00-01:30
 #SBATCH --mem=10G
-#SBATCH --array=3-5
+#SBATCH --array=1-8
 
 # load conda environment
 source $CONDA_PREFIX/etc/profile.d/conda.sh
@@ -23,6 +23,10 @@ GENOME_SIZE=1500000
 echo $GENOME_SIZE
 INPUT_FILE_PATH="$INPUT_DIR/"$STRAIN"_trimmed_2000_15.fastq"
 echo $INPUT_FILE_PATH
+
+if [ ! -d $OUTPUT_DIR ]
+    then mkdir -p $OUTPUT_DIR
+fi
 
 # run flye
 flye 	--nano-hq \
