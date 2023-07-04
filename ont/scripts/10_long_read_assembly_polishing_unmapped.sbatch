@@ -24,13 +24,47 @@ echo $REF
 # Load conda environment
 source /mnt/ibis/rclevesq/software/miniconda3/anpio1/etc/profile.d/conda.sh
 
+# Activate bbmap environment ----------------------------------------
+conda activate bbmap
+echo -e "\n## Tadpole ##\n"
+
+REF="$OUTPUT_DIR/"$STRAIN"_racon.fa"
+echo $REF
+OUTPUT_DIR="10_tadpole/$STRAIN/$ASSEMBLY/$REPLICONS/unmapped"
+mkdir -p $OUTPUT_DIR
+
+tadpole.sh --version
+
+# Run 5 round of contig extension with tadpole
+tadpole.sh      threads=$THREADS \
+                extendleft=1000 \
+                extendright=1000 \
+                trimcircular=t \
+                overwrite=true \
+                in=$REF \
+                extra=$FASTQ \
+                out=$OUTPUT_DIR/"$STRAIN"_tadpole1.fa \
+                mode=extend
+
+tadpole.sh      threads=$THREADS \
+                extendleft=1000 \
+                extendright=1000 \
+                trimcircular=t \
+                overwrite=true \
+                in=$OUTPUT_DIR/"$STRAIN"_tadpole1.fa \
+                extra=$FASTQ \
+                out=$OUTPUT_DIR/"$STRAIN"_tadpole2.fa \
+                mode=extend
+
 # Activate minimap2 environment -------------------------------------
 conda deactivate
 conda activate minimap2
 echo -e "\n## Minimap2 ##\n"
 
 # Capture file names
-OUTPUT_DIR="10_minimap2/$STRAIN/$ASSEMBLY/$REPLICONS/unmapped"
+REF="$OUTPUT_DIR/"$STRAIN"_tadpole2.fa"
+echo $REF
+OUTPUT_DIR="11_minimap2/$STRAIN/$ASSEMBLY/$REPLICONS/unmapped"
 mkdir -p $OUTPUT_DIR
 SUFFIX="map-ont"
 
@@ -67,8 +101,8 @@ echo -e "\n## Racon ##\n"
 # Capture file names
 SAM="$OUTPUT_DIR/"$STRAIN"_"$SUFFIX"_reflag.sam"
 echo $SAM
-OUTPUT_DIR2="11_racon/$STRAIN/$ASSEMBLY/$REPLICONS/unmapped"
-mkdir -p $OUTPUT_DIR2
+OUTPUT_DIR="12_racon/$STRAIN/$ASSEMBLY/$REPLICONS/unmapped"
+mkdir -p $OUTPUT_DIR
 
 racon --version
 
@@ -79,49 +113,7 @@ racon   $FASTQ \
         -t $THREADS \
         --error-threshold 0.1 \
         --no-trimming \
-        > $OUTPUT_DIR2/"$STRAIN"_racon.fa
-
-# Activate bbmap environment ----------------------------------------
-conda activate bbmap
-echo -e "\n## Tadpole ##\n"
-
-REF="$OUTPUT_DIR2/"$STRAIN"_racon.fa"
-echo $REF
-OUTPUT_DIR3="12_tadpole/$STRAIN/$ASSEMBLY/$REPLICONS/unmapped"
-mkdir -p $OUTPUT_DIR3
-
-tadpole.sh --version
-
-# Run 5 round of contig extension with tadpole
-tadpole.sh      threads=$THREADS \
-                extendleft=1000 \
-                extendright=1000 \
-                trimcircular=t \
-                overwrite=true \
-                in=$REF \
-                extra=$FASTQ \
-                out=$OUTPUT_DIR3/"$STRAIN"_tadpole1.fa \
-                mode=extend
-
-tadpole.sh      threads=$THREADS \
-                extendleft=1000 \
-                extendright=1000 \
-                trimcircular=t \
-                overwrite=true \
-                in=$OUTPUT_DIR3/"$STRAIN"_tadpole1.fa \
-                extra=$FASTQ \
-                out=$OUTPUT_DIR3/"$STRAIN"_tadpole2.fa \
-                mode=extend
-
-tadpole.sh      threads=$THREADS \
-                extendleft=1000 \
-                extendright=1000 \
-                trimcircular=t \
-                overwrite=true \
-                in=$OUTPUT_DIR3/"$STRAIN"_tadpole2.fa \
-                extra=$FASTQ \
-                out=$OUTPUT_DIR3/"$STRAIN"_tadpole3.fa \
-                mode=extend
+        > $OUTPUT_DIR/"$STRAIN"_racon.fa
 
 # Activate minimap2 environment -------------------------------------
 conda deactivate
@@ -129,69 +121,10 @@ conda activate minimap2
 echo -e "\n## Minimap2 ##\n"
 
 # Capture file names
-REF="$OUTPUT_DIR3/"$STRAIN"_tadpole3.fa"
+REF="$OUTPUT_DIR/"$STRAIN"_racon.fa"
 echo $REF
-OUTPUT_DIR4="13_minimap2/$STRAIN/$ASSEMBLY/$REPLICONS/unmapped"
-mkdir -p $OUTPUT_DIR4
-SUFFIX="map-ont"
-
-minimap2 --version
-
-# Run minimap2
-minimap2 -a \
-         -x map-ont \
-         $REF \
-         $FASTQ \
-         -o $OUTPUT_DIR4/"$STRAIN"_"$SUFFIX".sam
-
-# Activate samtools environment -------------------------------------
-conda deactivate
-conda activate samtools
-echo -e "\n## SAMtools ##\n"
-
-samtools --version | sed -n '1,3p'
-
-# Index reference file
-samtools faidx $REF
-
-# Reflag poorly aligned reads
-python scripts/sub_scripts/flag_unmapped.py \
-        $REF.fai \
-        $OUTPUT_DIR4/"$STRAIN"_"$SUFFIX".sam \
-        $OUTPUT_DIR4/"$STRAIN"_"$SUFFIX"_reflag.sam
-
-# Activate racon environment ----------------------------------------
-conda deactivate
-conda activate racon
-echo -e "\n## Racon ##\n"
-
-# Capture file names
-SAM="$OUTPUT_DIR4/"$STRAIN"_"$SUFFIX"_reflag.sam"
-echo $SAM
-OUTPUT_DIR5="14_racon/$STRAIN/$ASSEMBLY/$REPLICONS/unmapped"
-mkdir -p $OUTPUT_DIR5
-
-racon --version
-
-# Run racon
-racon   $FASTQ \
-        $SAM \
-        $REF \
-        -t $THREADS \
-        --error-threshold 0.1 \
-        --no-trimming \
-        > $OUTPUT_DIR5/"$STRAIN"_racon.fa
-
-# Activate minimap2 environment -------------------------------------
-conda deactivate
-conda activate minimap2
-echo -e "\n## Minimap2 ##\n"
-
-# Capture file names
-REF="$OUTPUT_DIR5/"$STRAIN"_racon.fa"
-echo $REF
-OUTPUT_DIR6="15_minimap2/$STRAIN/$ASSEMBLY/$REPLICONS/unmapped"
-mkdir -p $OUTPUT_DIR6
+OUTPUT_DIR="13_minimap2/$STRAIN/$ASSEMBLY/$REPLICONS/unmapped"
+mkdir -p $OUTPUT_DIR
 SUFFIX="map-ont"
 
 minimap2 --version
@@ -201,7 +134,7 @@ minimap2 -a \
 	 -x map-ont \
 	 $REF \
 	 $FASTQ \
-	 -o $OUTPUT_DIR6/"$STRAIN"_"$SUFFIX".sam
+	 -o $OUTPUT_DIR/"$STRAIN"_"$SUFFIX".sam
 
 # Activate samtools environment -------------------------------------
 conda deactivate
@@ -216,16 +149,16 @@ samtools faidx $REF
 # Reflag poorly aligned reads
 python scripts/sub_scripts/flag_unmapped.py \
 	$REF.fai \
-        $OUTPUT_DIR6/"$STRAIN"_"$SUFFIX".sam \
-        $OUTPUT_DIR6/"$STRAIN"_"$SUFFIX"_reflag.sam
+        $OUTPUT_DIR/"$STRAIN"_"$SUFFIX".sam \
+        $OUTPUT_DIR/"$STRAIN"_"$SUFFIX"_reflag.sam
 
 # Extract unmapped reads with samtools
 samtools view -bf 4 \
-                $OUTPUT_DIR6/"$STRAIN"_"$SUFFIX"_reflag.sam \
-                > $OUTPUT_DIR6/"$STRAIN"_"$SUFFIX"_reflag_unmapped.bam
+                $OUTPUT_DIR/"$STRAIN"_"$SUFFIX"_reflag.sam \
+                > $OUTPUT_DIR/"$STRAIN"_"$SUFFIX"_reflag_unmapped.bam
 
 # Convert bam file to fastq
-samtools fastq $OUTPUT_DIR6/"$STRAIN"_"$SUFFIX"_reflag_unmapped.bam \
-             > $OUTPUT_DIR6/"$STRAIN"_"$SUFFIX"_reflag_unmapped.fastq
+samtools fastq $OUTPUT_DIR/"$STRAIN"_"$SUFFIX"_reflag_unmapped.bam \
+             > $OUTPUT_DIR/"$STRAIN"_"$SUFFIX"_reflag_unmapped.fastq
 
-rm $OUTPUT_DIR6/"$STRAIN"_"$SUFFIX"_reflag_unmapped.bam
+rm $OUTPUT_DIR/"$STRAIN"_"$SUFFIX"_reflag_unmapped.bam

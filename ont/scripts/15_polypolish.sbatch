@@ -14,8 +14,8 @@ conda activate RBGA_1
 
 # Define paramaters
 INPUT_DIR1="09_flye"
-INPUT_DIR2="16_bwa"
-OUTPUT_DIR="17_polypolish"
+INPUT_DIR2="14_bwa"
+OUTPUT_DIR="15_polypolish"
 REPLICONS="18_replicons"
 
 # Capture info on input files
@@ -42,4 +42,4 @@ polypolish --debug $OUTPUT_DIR/$STRAIN/"$STRAIN"_polished.tsv \
 	   $OUTPUT_DIR/$STRAIN/"$STRAIN"_filtered_2.sam \
 	   > $OUTPUT_DIR/$STRAIN/"$STRAIN"_polished.fasta
 
-echo $REPLICONS > 19_statistics/$STRAIN
+echo $REPLICONS > 17_statistics/$STRAIN

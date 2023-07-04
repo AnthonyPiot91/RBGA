@@ -16,7 +16,6 @@ conda activate RBGA_1
 THREADS=10
 OUTPUT_DIR="16_bwa"
 SMALL_READ_PATH="../miseq/02_trimmomatic"
-REPLICONS="18_replicons"
 
 # Capture strain an barcode name
 STRAIN=$(sed -n "$SLURM_ARRAY_TASK_ID"p ../barcode_correspondence.txt | cut -f1)
@@ -25,8 +24,8 @@ BARCODE=$(sed -n "$SLURM_ARRAY_TASK_ID"p ../barcode_correspondence.txt | cut -f3
 echo $BARCODE
 
 # Capture long read fasta assembly file name
-LONG_READS="09_flye/$STRAIN/verified/$REPLICONS/"$REPLICONS".fasta"
-echo $LONG_READS
+REF="15_polypolish/$STRAIN/"$STRAIN"_polished.fasta"
+echo $REF
 
 # Capture small read fastq name
 SMALL_READS_R1=$(ls -1 $SMALL_READ_PATH/$STRAIN/outR1P.fastq)
@@ -35,6 +34,17 @@ echo $SMALL_READS_R1
 echo $SMALL_READS_R2
 
 # Run bwa-mem
-bwa index $LONG_READS
-bwa mem -t $THREADS -a $LONG_READS $SMALL_READS_R1 > $OUTPUT_DIR/"$STRAIN"_alignments_1.sam
-bwa mem -t $THREADS -a $LONG_READS $SMALL_READS_R2 > $OUTPUT_DIR/"$STRAIN"_alignments_2.sam
+bwa index $REF
+bwa mem -t $THREADS -a $REF $SMALL_READS_R1 $SMALL_READS_R2> $OUTPUT_DIR/"$STRAIN"_polished.sam
+
+# Activate samtools
+conda deactivate
+conda activate samtools
+
+# Sort sam file
+samtools sort 	-@ $THREADS \
+		-O SAM \
+		$OUTPUT_DIR/"$STRAIN"_polished.sam \
+		-o $OUTPUT_DIR/"$STRAIN"_polished_sorted.sam
+
+rm $OUTPUT_DIR/"$STRAIN"_polished.sam

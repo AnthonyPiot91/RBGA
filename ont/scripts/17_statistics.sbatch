@@ -12,8 +12,8 @@
 source $CONDA_PREFIX/etc/profile.d/conda.sh
 
 # define paramaters
-INPUT_DIR="15_minimap2"
-OUTPUT_DIR="19_statistics"
+INPUT_DIR="13_minimap2"
+OUTPUT_DIR="17_statistics"
 
 # capture info on input files
 STRAIN=$(sed -n "$SLURM_ARRAY_TASK_ID"p ../barcode_correspondence.txt | cut -f1)
