@@ -158,3 +158,5 @@ samtools view -bf 4 \
 # Convert bam file to fastq
 samtools fastq $OUTPUT_DIR/"$STRAIN"_"$SUFFIX"_reflag_unmapped.bam \
              > $OUTPUT_DIR/"$STRAIN"_"$SUFFIX"_reflag_unmapped.fastq
+
+rm $OUTPUT_DIR/"$STRAIN"_"$SUFFIX"_reflag_unmapped.bam
