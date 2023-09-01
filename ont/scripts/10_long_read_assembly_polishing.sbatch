@@ -12,14 +12,18 @@
 THREADS=12
 STRAIN=$(sed -n "$SLURM_ARRAY_TASK_ID"p ../barcode_correspondence.txt | cut -f1)
 echo $STRAIN
-FASTQ="06_chopper/"$STRAIN"_trimmed_2000_10.fastq"
+FASTQ="06_chopper/"$STRAIN"_trimmed_2000_15.fastq"
 echo $FASTQ
-ASSEMBLY="2000_10_meta_nano-hq"
+ASSEMBLY="2000_15_meta_nano-hq"
 echo $ASSEMBLY
 REPLICONS="assembly"
 echo $REPLICONS
 REF="09_flye/$STRAIN/$ASSEMBLY/$REPLICONS.fasta"
 echo $REF
+MAPPING="map-ont"
+echo $MAPPING
+RACON_ERR_THR="0.03"
+echo $RACON_ERR_THR
 
 # Load conda environment
 source /mnt/ibis/rclevesq/software/miniconda3/anpio1/etc/profile.d/conda.sh
@@ -64,16 +68,15 @@ REF="$OUTPUT_DIR/"$STRAIN"_tadpole2.fa"
 echo $REF
 OUTPUT_DIR="11_minimap2/$STRAIN/$ASSEMBLY/$REPLICONS"
 mkdir -p $OUTPUT_DIR
-SUFFIX="map-ont"
 
 minimap2 --version
 
 # Run minimap2
 minimap2 -a \
-         -x map-ont \
+         -x $MAPPING \
          $REF \
          $FASTQ \
-         -o $OUTPUT_DIR/"$STRAIN"_"$SUFFIX".sam
+         -o $OUTPUT_DIR/"$STRAIN"_"$MAPPING".sam
 
 # Activate samtools environment -------------------------------------
 conda deactivate
@@ -85,11 +88,25 @@ samtools --version | sed -n '1,3p'
 # Index reference file
 samtools faidx $REF
 
+# Convert SAM to BAM
+samtools view -b -@10 \
+		 $OUTPUT_DIR/"$STRAIN"_"$MAPPING".sam \
+		 > $OUTPUT_DIR/"$STRAIN"_"$MAPPING".bam
+
+# Recall mismatch
+samtools calmd -@10 --output-fmt SAM \
+		    $OUTPUT_DIR/"$STRAIN"_"$MAPPING".bam \
+		    $REF \
+        	    > $OUTPUT_DIR/"$STRAIN"_"$MAPPING"_recall.sam
+
 # Reflag poorly aligned reads
 python scripts/sub_scripts/flag_unmapped.py \
         $REF.fai \
-        $OUTPUT_DIR/"$STRAIN"_"$SUFFIX".sam \
-        $OUTPUT_DIR/"$STRAIN"_"$SUFFIX"_reflag.sam
+        $OUTPUT_DIR/"$STRAIN"_"$MAPPING"_recall.sam \
+        $OUTPUT_DIR/"$STRAIN"_"$MAPPING"_recall_reflag.sam
+
+rm $OUTPUT_DIR/"$STRAIN"_"$MAPPING".bam
+rm $OUTPUT_DIR/"$STRAIN"_"$MAPPING".sam
 
 # Activate racon environment ----------------------------------------
 conda deactivate
@@ -97,7 +114,7 @@ conda activate racon
 echo -e "\n## Racon ##\n"
 
 # Capture file names
-SAM="$OUTPUT_DIR/"$STRAIN"_"$SUFFIX"_reflag.sam"
+SAM="$OUTPUT_DIR/"$STRAIN"_"$MAPPING"_recall_reflag.sam"
 echo $SAM
 OUTPUT_DIR="12_racon/$STRAIN/$ASSEMBLY/$REPLICONS"
 mkdir -p $OUTPUT_DIR
@@ -109,9 +126,9 @@ racon   $FASTQ \
         $SAM \
         $REF \
         -t $THREADS \
-        --error-threshold 0.1 \
+        --error-threshold $RACON_ERR_THR \
         --no-trimming \
-        > $OUTPUT_DIR/"$STRAIN"_racon.fa
+        > $OUTPUT_DIR/"$STRAIN"_"$MAPPING"_racon.fa
 
 # Activate minimap2 environment -------------------------------------
 conda deactivate
@@ -119,20 +136,19 @@ conda activate minimap2
 echo -e "\n## Minimap2 ##\n"
 
 # Capture file names
-REF="$OUTPUT_DIR/"$STRAIN"_racon.fa"
+REF="$OUTPUT_DIR/"$STRAIN"_"$MAPPING"_racon.fa"
 echo $REF
 OUTPUT_DIR="13_minimap2/$STRAIN/$ASSEMBLY/$REPLICONS"
 mkdir -p $OUTPUT_DIR
-SUFFIX="map-ont"
 
 minimap2 --version
 
 # Run minimap2
 minimap2 -a \
-	 -x map-ont \
+	 -x $MAPPING \
 	 $REF \
 	 $FASTQ \
-	 -o $OUTPUT_DIR/"$STRAIN"_"$SUFFIX".sam
+	 -o $OUTPUT_DIR/"$STRAIN"_"$MAPPING".sam
 
 # Activate samtools environment -------------------------------------
 conda deactivate
@@ -144,19 +160,33 @@ samtools --version | sed -n '1,3p'
 # Index reference file
 samtools faidx $REF
 
+# Convert SAM to BAM
+samtools view -b -@10 \
+                 $OUTPUT_DIR/"$STRAIN"_"$MAPPING".sam \
+                 > $OUTPUT_DIR/"$STRAIN"_"$MAPPING".bam
+
+# Recall mismatch
+samtools calmd -@10 --output-fmt SAM \
+                    $OUTPUT_DIR/"$STRAIN"_"$MAPPING".bam \
+		    $REF \
+                    > $OUTPUT_DIR/"$STRAIN"_"$MAPPING"_recall.sam
+
 # Reflag poorly aligned reads
 python scripts/sub_scripts/flag_unmapped.py \
-	$REF.fai \
-        $OUTPUT_DIR/"$STRAIN"_"$SUFFIX".sam \
-        $OUTPUT_DIR/"$STRAIN"_"$SUFFIX"_reflag.sam
+        $REF.fai \
+        $OUTPUT_DIR/"$STRAIN"_"$MAPPING"_recall.sam \
+        $OUTPUT_DIR/"$STRAIN"_"$MAPPING"_recall_reflag.sam
+
+rm $OUTPUT_DIR/"$STRAIN"_"$MAPPING".bam
+rm $OUTPUT_DIR/"$STRAIN"_"$MAPPING".sam
 
 # Extract unmapped reads with samtools
 samtools view -bf 4 \
-                $OUTPUT_DIR/"$STRAIN"_"$SUFFIX"_reflag.sam \
-                > $OUTPUT_DIR/"$STRAIN"_"$SUFFIX"_reflag_unmapped.bam
+                $OUTPUT_DIR/"$STRAIN"_"$MAPPING"_recall_reflag.sam \
+                > $OUTPUT_DIR/"$STRAIN"_"$MAPPING"_recall_reflag_unmapped.bam
 
 # Convert bam file to fastq
-samtools fastq $OUTPUT_DIR/"$STRAIN"_"$SUFFIX"_reflag_unmapped.bam \
-             > $OUTPUT_DIR/"$STRAIN"_"$SUFFIX"_reflag_unmapped.fastq
+samtools fastq $OUTPUT_DIR/"$STRAIN"_"$MAPPING"_recall_reflag_unmapped.bam \
+             > $OUTPUT_DIR/"$STRAIN"_"$MAPPING"_recall_reflag_unmapped.fastq
 
-rm $OUTPUT_DIR/"$STRAIN"_"$SUFFIX"_reflag_unmapped.bam
+rm $OUTPUT_DIR/"$STRAIN"_"$MAPPING"_recall_reflag_unmapped.bam
