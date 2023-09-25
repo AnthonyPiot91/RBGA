@@ -10,7 +10,7 @@ import sys
 # Minimum mapping quality
 MIN_MAPQUAL = 30
 # Maximun percentage of sequence divergence
-MAX_SEQ_DIV = 4
+MAX_SEQ_DIV = 10
 # Minimum number of aligned bases required to keep read
 MIN_MATCH = 1000
 # Maximum number of clipped bases at a read extremity and within the reference
@@ -81,6 +81,8 @@ for line in SAM_FILE:
         # Reflag read if mapping quality < to MIN_MAPQUAL
         elif int(mapqual) < MIN_MAPQUAL:
             reflag()
+            OUT_SAM.write(line)
+            continue
 
         else:
 
@@ -96,11 +98,15 @@ for line in SAM_FILE:
             # Reflag read if the number of aligned bases is less than MIN_MATCH
             if sum_match < MIN_MATCH:
                 reflag()
+                OUT_SAM.write(line)
+                continue
 
             # Reflag read if a stretch of more than 99 insertions, deletions or
             # clipped bases inside the read
             elif re.search("[A-Z][0-9]{3,}[I,D,H,S][0-9]", CIGAR_str):
                 reflag()
+                OUT_SAM.write(line)
+                continue
 
             else:
 
@@ -131,9 +137,11 @@ for line in SAM_FILE:
                 seq_div = (total_mismatch * 100) / aligned_read_len
                 if seq_div > MAX_SEQ_DIV:
                     reflag()
+                    OUT_SAM.write(line)
+                    continue
 
                 # If more than 99 clipped bases at the beggining of the read
-                elif re.findall("^[0-9]{3,}[H,S]", CIGAR_str):
+                if re.findall("^[0-9]{3,}[H,S]", CIGAR_str):
                     match2 = re.findall("^[0-9]{3,}[H,S]", CIGAR_str)
                     clipped_bases_start = match2[0]
                     clipped_bases_start = clipped_bases_start.replace("H","").replace("S","")
@@ -143,14 +151,18 @@ for line in SAM_FILE:
                     # and greater than MAX_CLIP_WITHIN
                     if clipped_bases_start < read_start and clipped_bases_start > MAX_CLIP_WITHIN:
                         reflag()
+                        OUT_SAM.write(line)
+                        continue
 
                     # Reflag read if clipped bases reach the start of the reference and more than
                     # MAX_CLIP_WITHIN_EDGE clipped bases are within the reference sequence
                     elif clipped_bases_start > read_start and read_start > MAX_CLIP_WITHIN_EDGE:
                         reflag()
+                        OUT_SAM.write(line)
+                        continue
 
                 # If more than 99 clipped bases at the end of the read
-                elif re.findall("[0-9]{3,}[H,S]$", CIGAR_str):
+                if re.findall("[0-9]{3,}[H,S]$", CIGAR_str):
                     match2 = re.findall("[0-9]{3,}[H,S]$", CIGAR_str)
                     clipped_bases_end = match2[0]
                     clipped_bases_end = clipped_bases_end.replace("H","").replace("S","")
@@ -168,6 +180,8 @@ for line in SAM_FILE:
                     # than MAX_CLIP_WITHIN
                     if clipped_end_pos < ref_end and clipped_bases_end > MAX_CLIP_WITHIN:
                         reflag()
+                        OUT_SAM.write(line)
+                        continue
 
                     # Reflag read if clipped bases reach the end of the reference and more than
                     # MAX_CLIP_WITHIN_EDGE clipped bases are within the reference sequence
@@ -175,7 +189,7 @@ for line in SAM_FILE:
                         clipped_end_within = ref_end - aligned_read_end
                         if clipped_end_pos > ref_end and clipped_end_within > MAX_CLIP_WITHIN_EDGE:
                             reflag()
-
-            OUT_SAM.write(line)
-
+                            OUT_SAM.write(line)
+                            continue
+        OUT_SAM.write(line)
 OUT_SAM.close()

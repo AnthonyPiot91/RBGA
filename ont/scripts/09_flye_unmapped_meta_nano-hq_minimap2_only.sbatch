@@ -4,9 +4,9 @@
 #SBATCH -c 6
 #SBATCH -p ibis_small
 #SBATCH --mail-type=NONE
-#SBATCH --time=00-01:30
+#SBATCH --time=00-00:45
 #SBATCH --mem=10G
-#SBATCH --array=3-5
+#SBATCH --array=5
 
 # load conda environment
 source $CONDA_PREFIX/etc/profile.d/conda.sh
@@ -17,19 +17,23 @@ echo $STRAIN
 
 # define paramaters
 THREADS=8
-INPUT_DIR="06_chopper"
-OUTPUT_DIR="09_flye/$STRAIN/2000_10_meta_nano-hq"
-GENOME_SIZE=1500000
-echo $GENOME_SIZE
-INPUT_FILE_PATH="$INPUT_DIR/"$STRAIN"_trimmed_2000_10.fastq"
-echo $INPUT_FILE_PATH
+echo $THREADS
+REPLICONS="18_replicons"
+echo $REPLICONS
+PARAM="2000_10"
+echo $PARAM
+MAPPING="asm10"
+echo $MAPPING
+FASTQ="13_minimap2/$STRAIN/verified_minimap2_only/$REPLICONS/"$STRAIN"_"$PARAM"_"$MAPPING"_recall_reflag_unmapped.fastq"
+echo $FASTQ
+OUTPUT_DIR="09_flye/$STRAIN/verified/$REPLICONS/unmapped/"$PARAM"_"$MAPPING""
+mkdir -p $OUTPUT_DIR
 
 # run flye
 flye 	--nano-hq \
-	$INPUT_FILE_PATH \
-	-i 2 \
+	$FASTQ \
 	--meta \
-	--genome-size $GENOME_SIZE \
-	--read-error 0.06 \
+	-i 1 \
+        --read-error 0.1 \
 	--threads $THREADS \
 	--out-dir $OUTPUT_DIR/
