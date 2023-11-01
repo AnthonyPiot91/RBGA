@@ -9,8 +9,8 @@ import sys
 
 # Minimum mapping quality
 MIN_MAPQUAL = 30
-# Maximun percentage of sequence divergence
-MAX_SEQ_DIV = 10
+# Maximun percentage of sequence divergence in %
+MAX_SEQ_DIV = 5
 # Minimum number of aligned bases required to keep read
 MIN_MATCH = 1000
 # Maximum number of clipped bases at a read extremity and within the reference
@@ -46,6 +46,16 @@ for line_ref in REF_FILE:
     length = col_ref[1]
     dict[seq_ids] = length
 
+# Create variable to store count of remapped reads
+n_reflag_sec = 0
+n_reflag_sup = 0
+n_reflag_map = 0
+n_reflag_indel = 0
+n_reflag_seq_div = 0
+n_reflag_min_mat = 0
+n_reflag_cli_wit = 0
+n_reflag_cli_edg = 0
+
 # Go through each line in the input SAM file
 for line in SAM_FILE:
 
@@ -65,24 +75,27 @@ for line in SAM_FILE:
         CIGAR_str = col[5]
         MD = col[-1]
 
-	    # If unmapped read write to output and continue to next read
+	# If unmapped read write to output and continue to next read
         if flag == "4":
             OUT_SAM.write(line)
             continue
 
         # Remove secondary alignment
         elif flag == "256" or flag == "272":
+            n_reflag_sec += 1
             continue
 
         # Remove supplementary alignment
         elif flag == "2048" or flag == "2064":
+            n_reflag_sup += 1
             continue
 
         # Reflag read if mapping quality < to MIN_MAPQUAL
         elif int(mapqual) < MIN_MAPQUAL:
-            reflag()
-            OUT_SAM.write(line)
-            continue
+           reflag()
+           OUT_SAM.write(line)
+           n_reflag_map +=1
+           continue
 
         else:
 
@@ -96,16 +109,18 @@ for line in SAM_FILE:
             sum_match = sum(match)
 
             # Reflag read if the number of aligned bases is less than MIN_MATCH
-            if sum_match < MIN_MATCH:
-                reflag()
-                OUT_SAM.write(line)
-                continue
+            # if sum_match < MIN_MATCH:
+            #     reflag()
+            #     OUT_SAM.write(line)
+            #     n_reflag_min_map += 1
+            #     continue
 
             # Reflag read if a stretch of more than 99 insertions, deletions or
             # clipped bases inside the read
-            elif re.search("[A-Z][0-9]{3,}[I,D,H,S][0-9]", CIGAR_str):
+            if re.search("[A-Z][0-9]{3,}[I,D,H,S][0-9]", CIGAR_str):
                 reflag()
                 OUT_SAM.write(line)
+                n_reflag_indel += 1
                 continue
 
             else:
@@ -138,6 +153,7 @@ for line in SAM_FILE:
                 if seq_div > MAX_SEQ_DIV:
                     reflag()
                     OUT_SAM.write(line)
+                    n_reflag_seq_div += 1
                     continue
 
                 # If more than 99 clipped bases at the beggining of the read
@@ -152,6 +168,7 @@ for line in SAM_FILE:
                     if clipped_bases_start < read_start and clipped_bases_start > MAX_CLIP_WITHIN:
                         reflag()
                         OUT_SAM.write(line)
+                        n_reflag_cli_wit += 1
                         continue
 
                     # Reflag read if clipped bases reach the start of the reference and more than
@@ -159,6 +176,7 @@ for line in SAM_FILE:
                     elif clipped_bases_start > read_start and read_start > MAX_CLIP_WITHIN_EDGE:
                         reflag()
                         OUT_SAM.write(line)
+                        n_reflag_cli_edg += 1
                         continue
 
                 # If more than 99 clipped bases at the end of the read
@@ -181,6 +199,7 @@ for line in SAM_FILE:
                     if clipped_end_pos < ref_end and clipped_bases_end > MAX_CLIP_WITHIN:
                         reflag()
                         OUT_SAM.write(line)
+                        n_reflag_cli_wit += 1
                         continue
 
                     # Reflag read if clipped bases reach the end of the reference and more than
@@ -190,6 +209,17 @@ for line in SAM_FILE:
                         if clipped_end_pos > ref_end and clipped_end_within > MAX_CLIP_WITHIN_EDGE:
                             reflag()
                             OUT_SAM.write(line)
+                            n_reflag_cli_edg += 1
                             continue
         OUT_SAM.write(line)
 OUT_SAM.close()
+
+print("Number of reflag reads")
+print("Secondary alignment: " + str(n_reflag_sec))
+print("Supplementary alignment: " + str(n_reflag_sup))
+print("Mapping quality: " + str(n_reflag_map))
+print("INDEL longer than 99bp: " + str(n_reflag_indel))
+print("Sequence divergence: " + str(n_reflag_seq_div))
+print("Matches: " + str(n_reflag_min_mat))
+print("Clipped bases within: " + str(n_reflag_cli_wit))
+print("Clipped bases edge: " + str(n_reflag_cli_edg))
